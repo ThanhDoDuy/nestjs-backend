@@ -15,6 +15,10 @@ const envSchema = z.object({
   POSTGRES_PASSWORD: z.string().nonempty('POSTGRES_PASSWORD is required'),
   POSTGRES_DB: z.string().nonempty('POSTGRES_DB is required'),
   PORT: z.string().regex(/^\d+$/, 'PORT must be a number').optional(),
+  JWT_EXPIRATION_TIME: z
+    .string()
+    .regex(/^\d+$/, 'JWT_EXPIRATION_TIME must be a number'),
+  JWT_SECRET: z.string().nonempty('JWT_SECRET is required'),
 });
 
 @Module({
@@ -43,5 +47,4 @@ const envSchema = z.object({
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule {}

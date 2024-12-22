@@ -8,7 +8,7 @@ import PostEntity from './entities/post.entity';
 @Injectable()
 export class PostService {
   constructor(
-    @InjectRepository(PostEntity) 
+    @InjectRepository(PostEntity)
     private postsRepository: Repository<PostEntity>,
   ) {}
 

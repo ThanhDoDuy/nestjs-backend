@@ -16,17 +16,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         autoLoadEntities: true, // Automatically load entities (no need to import them manually)
-        synchronize: true,      // Synchronize the database schema with entities (disable in production)
+        synchronize: true, // Synchronize the database schema with entities (disable in production)
       }),
     }),
   ],
 })
-
 export class DatabaseModule implements OnModuleInit {
   private readonly logger = new Logger(DatabaseModule.name);
   constructor(private readonly configService: ConfigService) {}
   async onModuleInit() {
     this.logger.log(
-      `[TypeORM] Connected to database postgres at localhost:${this.configService.get<number>('POSTGRES_PORT')}`);
+      `[TypeORM] Connected to database postgres at localhost:${this.configService.get<number>('POSTGRES_PORT')}`,
+    );
   }
 }
