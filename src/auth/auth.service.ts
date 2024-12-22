@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { PostgresErrorCode } from 'src/database/postgresErrorCodes.enum';
@@ -6,6 +6,9 @@ import RegisterDto from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from 'src/interfaces/tokenPayload.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RefreshTokenEntity } from './entities/RefreshToken.Entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +18,10 @@ export class AuthService {
     private readonly usersService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
+
+  ) { }
 
   public async register(registrationData: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
@@ -67,6 +73,53 @@ export class AuthService {
 
   public getCookieWithJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    return this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_ACCESS_SECRET'),
+      expiresIn: '30m',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: '7d',
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  async saveRefreshToken(
+    userId: number,
+    refreshToken: string,
+    expiresAt: Date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  ) {
+    const hashedToken = await bcrypt.hash(refreshToken, 10); // Mã hóa token
+    const refreshTokenEntity = this.refreshTokenRepository.create({
+      user: { id: userId },
+      token: hashedToken,
+      expiresAt, // Sử dụng giá trị expiresAt đã được truyền hoặc mặc định
+    });
+  
+    return this.refreshTokenRepository.save(refreshTokenEntity);
+  }
+  
+
+  async validateRefreshToken(userId: number, refreshToken: string): Promise<boolean> {
+    const refreshTokenEntity = await this.refreshTokenRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    if (!refreshTokenEntity) {
+      return false;
+    }
+
+    // So sánh refresh token
+    return bcrypt.compare(refreshToken, refreshTokenEntity.token);
+  }
+
+  async deleteRefreshToken(userId: number): Promise<void> {
+    const result = await this.refreshTokenRepository.delete({ user: { id: userId } });
+    console.log(`Deleted refresh tokens for user ID ${userId}:`, result);
+    if (result.affected === 0) {
+      throw new NotFoundException(`No refresh tokens found for user with ID ${userId}`);
+    }
   }
 }
+

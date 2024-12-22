@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { PostModule } from './post/post.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
 
 const envSchema = z.object({
   POSTGRES_HOST: z.string().nonempty('POSTGRES_HOST is required'),
@@ -15,10 +16,10 @@ const envSchema = z.object({
   POSTGRES_PASSWORD: z.string().nonempty('POSTGRES_PASSWORD is required'),
   POSTGRES_DB: z.string().nonempty('POSTGRES_DB is required'),
   PORT: z.string().regex(/^\d+$/, 'PORT must be a number').optional(),
-  JWT_EXPIRATION_TIME: z
-    .string()
-    .regex(/^\d+$/, 'JWT_EXPIRATION_TIME must be a number'),
-  JWT_SECRET: z.string().nonempty('JWT_SECRET is required'),
+  JWT_REFRESH_SECRET: z.string().nonempty('JWT_REFRESH_SECRET is required'),
+  JWT_ACCESS_SECRET: z.string().nonempty('JWT_ACCESS_SECRET is required'),
+  OPENAI_API_KEY: z.string().nonempty('OPENAI_API_KEY is required'),
+  OPENAI_API_MODEL: z.string().nonempty('OPENAI_API_MODEL is required'),
 });
 
 @Module({
@@ -43,6 +44,7 @@ const envSchema = z.object({
     PostModule,
     UserModule,
     AuthModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
