@@ -1,8 +1,7 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import OpenAI from 'openai';
 import { ChatService } from './chat.service';
-import { IChatRequest, IChatResponse } from 'src/interfaces/openai.interface';
-import JwtAuthenticationGuard from 'src/auth/guards/jwt-authentication.guard';
+import { IChatRequest } from 'src/interfaces/openai.interface';
 
 
 @Controller('openai')

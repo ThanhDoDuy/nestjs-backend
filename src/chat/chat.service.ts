@@ -21,7 +21,8 @@ export class ChatService {
     try {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         messages: [{ role: 'user', content: 'Say this is a test' }],
-        model: 'gpt-3.5-turbo',
+        store: true,
+        model: 'gpt-4o-mini',
       };
       const chatCompletion: OpenAI.Chat.ChatCompletion = await this.client.chat.completions.create(params);
       console.log('chatCompletion payload:', chatCompletion);
