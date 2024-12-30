@@ -16,8 +16,7 @@ export class ChatController {
       const getMessages = (await this.openaiService.getMessagesData(
         request,
       )) as OpenAI.ChatCompletion;
-      console.log("==getMessages==", getMessages);
-      return getMessages
+      return getMessages?.choices[0]?.message?.content
     } catch (error) {
       console.error("Error in getChatOpenai:", error);
       throw error; // Rethrow để NestJS xử lý

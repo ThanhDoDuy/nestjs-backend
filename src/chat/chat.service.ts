@@ -20,13 +20,11 @@ export class ChatService {
   async getMessagesData(request: IChatRequest) {
     try {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
-        messages: [{ role: 'user', content: 'Say this is a test' }],
+        messages: [{ role: 'user', content: request.messages[0]?.content }],
         store: true,
         model: 'gpt-4o-mini',
       };
       const chatCompletion: OpenAI.Chat.ChatCompletion = await this.client.chat.completions.create(params);
-      console.log('chatCompletion payload:', chatCompletion);
-
       return chatCompletion
     } catch (error) {
       console.error('Error in getMessagesData:', error.response?.data || error.message);
